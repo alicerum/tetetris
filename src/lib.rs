@@ -11,13 +11,14 @@ use events::{Event, Events};
 
 mod ui;
 mod events;
+pub mod flags;
 
-pub fn run() -> Result<(), Box<dyn Error>> {
+pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
     let stdout = io::stdout().into_raw_mode()?;
     let backend = TermionBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
-    let events = Events::new();
+    let events = Events::new(f.tick);
 
     loop {
         terminal.draw(|f| ui::draw(f))?;

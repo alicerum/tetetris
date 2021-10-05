@@ -16,7 +16,7 @@ pub struct Events {
 }
 
 impl Events {
-    pub fn new() -> Events {
+    pub fn new(tick: u32) -> Events {
         let (tx, rx) = mpsc::channel();
 
         let tx2 = tx.clone();
@@ -38,7 +38,7 @@ impl Events {
                 return
             }
 
-            thread::sleep(Duration::from_millis(500));
+            thread::sleep(Duration::from_millis(u64::from(tick)));
         });
         
         Events { rx }
