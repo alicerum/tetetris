@@ -31,12 +31,12 @@ pub fn config_flags() -> Result<Flags, ParseError> {
         .author("Alice Rum <wyvie@wyvie.org>")
         .arg(Arg::with_name("tick")
             .short("t")
-            .long("tick-rate")
+            .long("tick")
             .help("Tetris tick rate in miliseconds. Default is '300'.")
             .takes_value(true))
         .get_matches();
 
-    let tick = matches.value_of("refresh").unwrap_or("300");
+    let tick = matches.value_of("tick").unwrap_or("300");
     let tick = match tick.parse() {
         Err(_) => return Err(ParseError::new("Wrong value for 'tick-rate' flag. Must be integer.")),
         Ok(v) => v,

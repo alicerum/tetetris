@@ -1,5 +1,5 @@
 use std::process;
-use tetetris::run;
+use tetetris;
 use tetetris::flags;
 
 fn main() {
@@ -11,7 +11,7 @@ fn main() {
         },
     };
 
-    if let Err(e) = run(f) {
+    if let Err(e) = tetetris::run(f) {
         eprintln!("Error: {}", e);
         process::exit(1);
     }

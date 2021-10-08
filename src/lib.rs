@@ -17,12 +17,12 @@ pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
     let stdout = io::stdout().into_raw_mode()?;
     let backend = TermionBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
+    terminal.clear()?;
 
     let events = Events::new(f.tick);
 
     loop {
         terminal.draw(|f| ui::draw(f))?;
-
 
         match events.get_event()? {
             Event::Input(key) => match key {
@@ -34,7 +34,7 @@ pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
                 },
             },
             Event::Tick => {
-                // nothing for now
+                // process tick here
             },
         }
 
