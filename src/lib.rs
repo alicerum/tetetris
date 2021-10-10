@@ -1,15 +1,10 @@
 use std::io;
 use std::error::Error;
-
 use tui::Terminal;
 use tui::backend::TermionBackend;
-
 use termion::raw::IntoRawMode;
 use termion::event::Key;
-
 use events::{Event, Events};
-
-use game::tetronimos;
 use game::Board;
 
 pub mod ui;
@@ -25,7 +20,6 @@ pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
 
     let events = Events::new(f.tick);
 
-    let mut t = tetronimos::Tetronimo::new(tetronimos::Type::T);
     let mut board = Board::new();
 
     loop {
