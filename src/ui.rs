@@ -1,3 +1,4 @@
+use crate::game::Board;
 use tui::backend::Backend;
 use tui::Frame;
 use tui::text::Span;
@@ -5,12 +6,12 @@ use tui::style::{Style, Color, Modifier};
 use tui::layout::{Layout, Direction, Constraint};
 use tui::widgets::{Block, Borders, BorderType};
 
-pub fn draw<B: Backend>(f: &mut Frame<B>) {
+pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
 
-    let cell_height = 1;
-    let cell_width = 2;
+    let cell_height = 2;
+    let cell_width = 4;
 
-    let board_height = 20 * cell_height + 2;
+    let board_height = 20 * cell_height + 4;
     let board_width = 10 * cell_width + 2;
 
     let term_rect = f.size();
@@ -72,13 +73,11 @@ pub fn draw<B: Backend>(f: &mut Frame<B>) {
             .split(cols[i]);
 
         for j in 0..20 {
-            let mut cell_block = Block::default();
-            if i == 5 && j == 5 {
-                cell_block = cell_block.style(Style::default().bg(Color::Cyan));
+            if let Some(c) = game_board.check_pixel(i, j) {
+                let mut cell_block = Block::default();
+                cell_block = cell_block.style(Style::default().bg(c));
+                f.render_widget(cell_block, rows[j]);
             }
-            f.render_widget(cell_block, rows[j]);
         }
     }
-
-
 }

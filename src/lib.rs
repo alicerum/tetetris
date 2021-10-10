@@ -9,8 +9,12 @@ use termion::event::Key;
 
 use events::{Event, Events};
 
-mod ui;
-mod events;
+use game::tetronimos;
+use game::Board;
+
+pub mod ui;
+pub mod events;
+pub mod game;
 pub mod flags;
 
 pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
@@ -21,8 +25,11 @@ pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
 
     let events = Events::new(f.tick);
 
+    let mut t = tetronimos::Tetronimo::new(tetronimos::Type::T);
+    let mut board = Board::new();
+
     loop {
-        terminal.draw(|f| ui::draw(f))?;
+        terminal.draw(|f| ui::draw(f, &board))?;
 
         match events.get_event()? {
             Event::Input(key) => match key {
@@ -34,6 +41,7 @@ pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
                 },
             },
             Event::Tick => {
+                board.tick();
                 // process tick here
             },
         }
