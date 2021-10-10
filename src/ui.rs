@@ -7,8 +7,8 @@ use tui::widgets::{Block, Borders, BorderType};
 
 pub fn draw<B: Backend>(f: &mut Frame<B>) {
 
-    let cell_height = 2;
-    let cell_width = 4;
+    let cell_height = 1;
+    let cell_width = 2;
 
     let board_height = 20 * cell_height + 2;
     let board_width = 10 * cell_width + 2;
@@ -48,7 +48,37 @@ pub fn draw<B: Backend>(f: &mut Frame<B>) {
         ])
         .split(outer[1]);
 
-    let block = Block::default()
-        .borders(Borders::ALL);
+    let block = Block::default().borders(Borders::ALL);
     f.render_widget(block, outer[1]);
+
+    let mut vcs = Vec::new();
+    let mut hcs = Vec::new();
+    for _ in 0..10 {
+        vcs.push(Constraint::Length(cell_width));
+    }
+    for _ in 0..20 {
+        hcs.push(Constraint::Length(cell_height));
+    }
+    let cols = Layout::default()
+        .direction(Direction::Horizontal)
+        .margin(1)
+        .constraints(vcs)
+        .split(outer[1]);
+
+    for i in 0..10 {
+        let rows = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(hcs.clone())
+            .split(cols[i]);
+
+        for j in 0..20 {
+            let mut cell_block = Block::default();
+            if i == 5 && j == 5 {
+                cell_block = cell_block.style(Style::default().bg(Color::Cyan));
+            }
+            f.render_widget(cell_block, rows[j]);
+        }
+    }
+
+
 }
