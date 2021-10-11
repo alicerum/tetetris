@@ -70,13 +70,13 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
         let rows = Layout::default()
             .direction(Direction::Vertical)
             .constraints(hcs.clone())
-            .split(cols[i]);
+            .split(cols[i as usize]);
 
         for j in 0..20 {
             if let Some(c) = game_board.check_pixel(i, j) {
                 let mut cell_block = Block::default();
                 cell_block = cell_block.style(Style::default().bg(c));
-                f.render_widget(cell_block, rows[j]);
+                f.render_widget(cell_block, rows[j as usize]);
             }
         }
     }
