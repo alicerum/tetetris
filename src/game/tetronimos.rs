@@ -14,6 +14,13 @@ pub enum Type {
     O,
 }
 
+impl Type {
+    // fill_bag fills the bag of enum types
+    pub fn fill_bag() -> Vec<Type> {
+        vec![Type::I, Type::L, Type::T, Type::S, Type::O]
+    }
+}
+
 impl Distribution<Type> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Type {
         match rng.gen_range(0..=4) {

@@ -1,7 +1,8 @@
 pub mod tetronimos;
 
+use rand::seq::SliceRandom;
 use std::collections::HashMap;
-use tetronimos::Tetronimo;
+use tetronimos::{Tetronimo, Type};
 use tui::style::Color;
 
 pub struct Pixel {
@@ -16,6 +17,8 @@ pub struct Board {
     board: HashMap<(i8, i8), Color>,
 
     game_over: bool,
+
+    bag: Vec<Type>,
 }
 
 impl Board {
@@ -24,6 +27,21 @@ impl Board {
             falling: None,
             board: HashMap::new(),
             game_over: false,
+
+            bag: Vec::new(),
+        }
+    }
+
+    fn next_tetronimo_type(&mut self) -> Type {
+        match self.bag.pop() {
+            Some(t) => t,
+            None => {
+                self.bag = Type::fill_bag();
+                let mut rng = rand::thread_rng();
+                self.bag.shuffle(&mut rng);
+
+                return self.bag.pop().unwrap();
+            }
         }
     }
 
@@ -48,7 +66,7 @@ impl Board {
                 }
             },
             None => {
-                self.falling = Some(Tetronimo::new(rand::random()));
+                self.falling = Some(Tetronimo::new(self.next_tetronimo_type()));
             },
         }
     }
