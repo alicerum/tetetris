@@ -1,11 +1,9 @@
 use std::collections::HashMap;
 use tui::style::Color;
 use super::Pixel;
-use rand::{
-    distributions::{Distribution, Standard},
-    Rng,
-};
+use rand::{thread_rng, Rng};
 
+#[derive(Copy,Clone)]
 pub enum Type {
     I,
     L,
@@ -16,22 +14,37 @@ pub enum Type {
 
 impl Type {
     // fill_bag fills the bag of enum types
-    pub fn fill_bag() -> Vec<Type> {
-        vec![Type::I, Type::L, Type::T, Type::S, Type::O]
+    fn fill_bag() -> [Type; 5] {
+        [Type::I, Type::L, Type::T, Type::S, Type::O]
     }
 }
 
-impl Distribution<Type> for Standard {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Type {
-        match rng.gen_range(0..=4) {
-            0 => Type::I,
-            1 => Type::L,
-            2 => Type::T,
-            3 => Type::S,
-            _ => Type::O,
+pub struct TetronimoBag {
+    types: [Type; 5],
+    size: u8,
+}
+
+impl TetronimoBag {
+    pub fn new() -> TetronimoBag {
+        TetronimoBag{types: Type::fill_bag(), size: 5}
+    }
+
+    pub fn draw_next(&mut self) -> Type {
+        let index = thread_rng().gen_range(0..self.size);
+        let result = self.types[index as usize];
+        // move it all around
+        for i in index..self.size {
+            self.types[(i-1) as usize] = self.types[i as usize];
         }
+        self.size -= 1;
+        if self.size == 0 {
+            self.types = Type::fill_bag();
+            self.size = 5;
+        }
+        result
     }
 }
+
 
 pub struct Tetronimo {
     t: Type,

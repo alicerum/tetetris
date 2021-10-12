@@ -1,8 +1,7 @@
 pub mod tetronimos;
 
-use rand::seq::SliceRandom;
 use std::collections::HashMap;
-use tetronimos::{Tetronimo, Type};
+use tetronimos::{Tetronimo, Type, TetronimoBag};
 use tui::style::Color;
 
 pub struct Pixel {
@@ -18,7 +17,7 @@ pub struct Board {
 
     game_over: bool,
 
-    bag: Vec<Type>,
+    bag: TetronimoBag,
 }
 
 impl Board {
@@ -31,21 +30,12 @@ impl Board {
             // TODO: rework the bag thing
             // right now, it uses multiple vectors and some uncomfortable
             // shuffling memory around, should be nicer and neater
-            bag: Vec::new(),
+            bag: TetronimoBag::new(),
         }
     }
 
     fn next_tetronimo_type(&mut self) -> Type {
-        match self.bag.pop() {
-            Some(t) => t,
-            None => {
-                self.bag = Type::fill_bag();
-                let mut rng = rand::thread_rng();
-                self.bag.shuffle(&mut rng);
-
-                return self.bag.pop().unwrap();
-            }
-        }
+        self.bag.draw_next()
     }
 
     pub fn tick(&mut self) {

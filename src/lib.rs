@@ -15,6 +15,7 @@ pub mod flags;
 pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
     let stdout = io::stdout().into_raw_mode()?;
     let backend = TermionBackend::new(stdout);
+
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
 
@@ -39,7 +40,6 @@ pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
                 // process tick here
             },
         }
-
     }
 
     Ok(())
