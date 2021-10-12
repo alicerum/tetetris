@@ -28,6 +28,9 @@ impl Board {
             board: HashMap::new(),
             game_over: false,
 
+            // TODO: rework the bag thing
+            // right now, it uses multiple vectors and some uncomfortable
+            // shuffling memory around, should be nicer and neater
             bag: Vec::new(),
         }
     }
@@ -53,6 +56,7 @@ impl Board {
         }
         match &mut self.falling {
             Some(t) => {
+                // if cannot move anymore
                 if !t.move_tick(&self.board) {
                     for p in &t.pixels {
                         if p.y < 0 {
