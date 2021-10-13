@@ -33,8 +33,8 @@ impl TetronimoBag {
         let index = thread_rng().gen_range(0..self.size);
         let result = self.types[index as usize];
         // move it all around
-        for i in index..self.size {
-            self.types[(i-1) as usize] = self.types[i as usize];
+        for i in index..self.size-1 {
+            self.types[i as usize] = self.types[(i+1) as usize];
         }
         self.size -= 1;
         if self.size == 0 {
