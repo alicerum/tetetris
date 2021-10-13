@@ -34,6 +34,24 @@ impl Board {
         }
     }
 
+    pub fn move_left(&mut self) {
+        if let Some(t) = &mut self.falling {
+            t.move_left(&self.board);
+        }
+    }
+
+    pub fn move_right(&mut self) {
+        if let Some(t) = &mut self.falling {
+            t.move_right(&self.board);
+        }
+    }
+
+    pub fn move_down(&mut self) {
+        if let Some(t) = &mut self.falling {
+            t.move_down(&self.board);
+        }
+    }
+
     fn next_tetronimo_type(&mut self) -> Type {
         self.bag.draw_next()
     }

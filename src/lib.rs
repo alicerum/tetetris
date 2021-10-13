@@ -31,6 +31,15 @@ pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
                 Key::Char('q') | Key::Ctrl('c') => {
                     break;
                 },
+                Key::Right => {
+                    board.move_right();
+                },
+                Key::Left => {
+                    board.move_left();
+                },
+                Key::Down => {
+                    board.move_down();
+                },
                 _ => {
                     // process keys here
                 },

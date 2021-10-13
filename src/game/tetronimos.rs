@@ -97,6 +97,37 @@ impl Tetronimo {
 
         None
     }
+
+    pub fn move_right(&mut self, board: &HashMap<(i8, i8), Color>) {
+        for p in &mut self.pixels {
+            if p.x + 1 == 10 || board.get(&(p.x+1, p.y)).is_some() {
+                return;
+            }
+        }
+
+        self.pixels.iter_mut().for_each(|p| p.x += 1);
+    }
+
+    pub fn move_left(&mut self, board: &HashMap<(i8, i8), Color>) {
+        for p in &mut self.pixels {
+            if p.x - 1 == -1 || board.get(&(p.x-1, p.y)).is_some() {
+                return;
+            }
+        }
+
+        self.pixels.iter_mut().for_each(|p| p.x -= 1);
+    }
+
+    pub fn move_down(&mut self, board: &HashMap<(i8, i8), Color>) {
+        for p in &mut self.pixels {
+            if p.y + 1 == 20 || board.get(&(p.x, p.y+1)).is_some() {
+                return;
+            }
+        }
+
+        self.pixels.iter_mut().for_each(|p| p.y += 1);
+
+    }
 }
 
 fn fill_new_i(t: &mut Tetronimo) {
