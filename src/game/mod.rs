@@ -4,13 +4,6 @@ use std::collections::HashMap;
 use tetronimos::{Tetronimo, Type, TetronimoBag};
 use tui::style::Color;
 
-pub struct Pixel {
-    x: i8,
-    y: i8,
-
-    c: Color,
-}
-
 pub struct Board {
     falling: Option<Tetronimo>,
     board: HashMap<(i8, i8), Color>,
@@ -36,19 +29,19 @@ impl Board {
 
     pub fn move_left(&mut self) {
         if let Some(t) = &mut self.falling {
-            t.move_left(&self.board);
+            t.move_offset((-1, 0), &self.board);
         }
     }
 
     pub fn move_right(&mut self) {
         if let Some(t) = &mut self.falling {
-            t.move_right(&self.board);
+            t.move_offset((1, 0), &self.board);
         }
     }
 
     pub fn move_down(&mut self) {
         if let Some(t) = &mut self.falling {
-            t.move_down(&self.board);
+            t.move_offset((0, 1), &self.board);
         }
     }
 
@@ -65,7 +58,7 @@ impl Board {
         match &mut self.falling {
             Some(t) => {
                 // if cannot move anymore
-                if !t.move_tick(&self.board) {
+                if !t.move_offset((0, 1), &self.board) {
                     for p in &t.pixels {
                         if p.y < 0 {
                             // piece couldn't move and part of it was above the screen

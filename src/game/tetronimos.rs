@@ -1,7 +1,14 @@
 use std::collections::HashMap;
 use tui::style::Color;
-use super::Pixel;
 use rand::{thread_rng, Rng};
+
+#[derive(Copy, Clone)]
+pub struct Pixel {
+    pub x: i8,
+    pub y: i8,
+
+    pub c: Color,
+}
 
 #[derive(Copy,Clone)]
 pub enum Type {
@@ -47,47 +54,17 @@ impl TetronimoBag {
 
 
 pub struct Tetronimo {
-    t: Type,
-
-    pub pixels: Vec<Pixel>,
+    pub pixels: [Pixel; 4],
 }
 
 impl Tetronimo {
-    pub fn new (ttype: Type) -> Tetronimo {
-        let mut t = Tetronimo {
-            t: ttype,
-            pixels: Vec::new(),
-        };
-
-        match t.t {
-            Type::I => fill_new_i(&mut t),
-            Type::L => fill_new_l(&mut t),
-            Type::T => fill_new_t(&mut t),
-            Type::O => fill_new_o(&mut t),
-            Type::S => fill_new_s(&mut t),
+    pub fn new (t: Type) -> Tetronimo {
+        Tetronimo {
+            pixels: fill_new_pixels(t),
         }
-
-        t
     }
 
     // move_tick returns false in case we cannot move tetronimo anymore
-    pub fn move_tick(&mut self, board: &HashMap<(i8, i8), Color>) -> bool {
-        for p in &self.pixels {
-            if p.y == 19 {
-                return false;
-            }
-            if let Some(_) = board.get(&(p.x, p.y + 1)) {
-                return false;
-            }
-        }
-
-        self.pixels.iter_mut().for_each(|p| {
-            p.y += 1;
-        });
-
-        true
-    }
-
     pub fn check_pixel(&self, x: i8, y: i8) -> Option<Color> {
         for p in &self.pixels {
             if p.x == x && p.y == y {
@@ -98,79 +75,89 @@ impl Tetronimo {
         None
     }
 
-    pub fn move_right(&mut self, board: &HashMap<(i8, i8), Color>) {
+    pub fn move_offset(&mut self, offset: (i8, i8), board: &HashMap<(i8, i8), Color>) -> bool {
         for p in &mut self.pixels {
-            if p.x + 1 == 10 || board.get(&(p.x+1, p.y)).is_some() {
-                return;
+            let (new_x, new_y) = (p.x + offset.0, p.y + offset.1);
+            if new_y == 20 ||
+                new_x == 10 || new_x == -1 ||
+                board.get(&(new_x, new_y)).is_some() {
+
+                return false;
             }
         }
 
-        self.pixels.iter_mut().for_each(|p| p.x += 1);
-    }
-
-    pub fn move_left(&mut self, board: &HashMap<(i8, i8), Color>) {
-        for p in &mut self.pixels {
-            if p.x - 1 == -1 || board.get(&(p.x-1, p.y)).is_some() {
-                return;
-            }
-        }
-
-        self.pixels.iter_mut().for_each(|p| p.x -= 1);
-    }
-
-    pub fn move_down(&mut self, board: &HashMap<(i8, i8), Color>) {
-        for p in &mut self.pixels {
-            if p.y + 1 == 20 || board.get(&(p.x, p.y+1)).is_some() {
-                return;
-            }
-        }
-
-        self.pixels.iter_mut().for_each(|p| p.y += 1);
-
+        self.pixels.iter_mut().for_each(|p| {
+            p.x += offset.0;
+            p.y += offset.1;
+        });
+        true
     }
 }
 
-fn fill_new_i(t: &mut Tetronimo) {
+// we use tables for tetronimos spawn
+// as the easiest way
+fn fill_new_pixels(t: Type) -> [Pixel; 4] {
+    let res = [Pixel{x: 0, y: 0, c: Color::White}; 4];
+    match t {
+        Type::I => fill_new_i(res),
+        Type::L => fill_new_l(res),
+        Type::T => fill_new_t(res),
+        Type::O => fill_new_o(res),
+        Type::S => fill_new_s(res),
+    }
+}
+
+fn fill_new_i(mut ps: [Pixel; 4]) -> [Pixel; 4] {
     let c = Color::Cyan;
 
-    t.pixels.push(Pixel{x: 3, y:-1, c: c});
-    t.pixels.push(Pixel{x: 4, y:-1, c: c});
-    t.pixels.push(Pixel{x: 5, y:-1, c: c});
-    t.pixels.push(Pixel{x: 6, y:-1, c: c});
+    ps[0] = Pixel{x: 4, y:-1, c: c};
+    ps[1] = Pixel{x: 3, y:-1, c: c};
+    ps[2] = Pixel{x: 5, y:-1, c: c};
+    ps[3] = Pixel{x: 6, y:-1, c: c};
+
+    ps
 }
 
-fn fill_new_l(t: &mut Tetronimo) {
+fn fill_new_l(mut ps: [Pixel; 4]) -> [Pixel; 4] {
     let c = Color::Yellow;
 
-    t.pixels.push(Pixel{x: 3, y:-1, c: c});
-    t.pixels.push(Pixel{x: 4, y:-1, c: c});
-    t.pixels.push(Pixel{x: 5, y:-1, c: c});
-    t.pixels.push(Pixel{x: 5, y:-2, c: c}); // upper
+    ps[0] = Pixel{x: 4, y:-1, c: c};
+    ps[1] = Pixel{x: 3, y:-1, c: c};
+    ps[2] = Pixel{x: 5, y:-1, c: c};
+    ps[3] = Pixel{x: 5, y:-2, c: c}; // upper
+
+    ps
 }
 
-fn fill_new_t(t: &mut Tetronimo) {
+fn fill_new_t(mut ps: [Pixel; 4]) -> [Pixel; 4] {
     let c = Color::Magenta;
 
-    t.pixels.push(Pixel{x: 4, y:-2, c: c});
-    t.pixels.push(Pixel{x: 4, y:-1, c: c});
-    t.pixels.push(Pixel{x: 3, y:-1, c: c});
-    t.pixels.push(Pixel{x: 5, y:-1, c: c});
+    ps[0] = Pixel{x: 4, y:-1, c: c};
+    ps[1] = Pixel{x: 4, y:-2, c: c};
+    ps[2] = Pixel{x: 3, y:-1, c: c};
+    ps[3] = Pixel{x: 5, y:-1, c: c};
+
+    ps
 }
 
-fn fill_new_s(t: &mut Tetronimo) {
+fn fill_new_s(mut ps: [Pixel; 4]) -> [Pixel; 4] {
     let c = Color::Green;
 
-    t.pixels.push(Pixel{x: 3, y:-1, c: c});
-    t.pixels.push(Pixel{x: 4, y:-1, c: c});
-    t.pixels.push(Pixel{x: 4, y:-2, c: c});
-    t.pixels.push(Pixel{x: 5, y:-2, c: c});
+    ps[0] = Pixel{x: 4, y:-1, c: c};
+    ps[1] = Pixel{x: 3, y:-1, c: c};
+    ps[2] = Pixel{x: 4, y:-2, c: c};
+    ps[3] = Pixel{x: 5, y:-2, c: c};
+
+    ps
 }
 
-fn fill_new_o(t: &mut Tetronimo) {
+fn fill_new_o(mut ps: [Pixel; 4]) -> [Pixel; 4] {
     let c = Color::LightYellow;
 
-    t.pixels.push(Pixel{x: 4, y:-2, c: c});
-    t.pixels.push(Pixel{x: 5, y:-2, c: c});
-    t.pixels.push(Pixel{x: 4, y:-1, c: c});
-    t.pixels.push(Pixel{x: 5, y:-1, c: c});
+    ps[0] = Pixel{x: 4, y:-1, c: c};
+    ps[1] = Pixel{x: 4, y:-2, c: c};
+    ps[2] = Pixel{x: 5, y:-2, c: c};
+    ps[3] = Pixel{x: 5, y:-1, c: c};
+
+    ps
 }
