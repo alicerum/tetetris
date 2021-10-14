@@ -40,6 +40,12 @@ pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
                 Key::Down => {
                     board.move_down();
                 },
+                Key::Char(' ') => {
+                    board.rotate(true);
+                },
+                Key::Char('x') => {
+                    board.rotate(false);
+                },
                 _ => {
                     // process keys here
                 },

@@ -45,6 +45,12 @@ impl Board {
         }
     }
 
+    pub fn rotate(&mut self, clockwise: bool) {
+        if let Some(t) = &mut self.falling {
+            t.rotate(clockwise);
+        }
+    }
+
     fn next_tetronimo_type(&mut self) -> Type {
         self.bag.draw_next()
     }

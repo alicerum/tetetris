@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use tui::style::Color;
 use rand::{thread_rng, Rng};
 
+mod tables;
+
 #[derive(Copy, Clone)]
 pub struct Pixel {
     pub x: i8,
@@ -10,7 +12,7 @@ pub struct Pixel {
     pub c: Color,
 }
 
-#[derive(Copy,Clone)]
+#[derive(Copy, Clone)]
 pub enum Type {
     I,
     L,
@@ -52,7 +54,6 @@ impl TetronimoBag {
     }
 }
 
-
 pub struct Tetronimo {
     pub pixels: [Pixel; 4],
 }
@@ -60,7 +61,7 @@ pub struct Tetronimo {
 impl Tetronimo {
     pub fn new (t: Type) -> Tetronimo {
         Tetronimo {
-            pixels: fill_new_pixels(t),
+            pixels: tables::fill_new_pixels(t),
         }
     }
 
@@ -92,72 +93,22 @@ impl Tetronimo {
         });
         true
     }
-}
 
-// we use tables for tetronimos spawn
-// as the easiest way
-fn fill_new_pixels(t: Type) -> [Pixel; 4] {
-    let res = [Pixel{x: 0, y: 0, c: Color::White}; 4];
-    match t {
-        Type::I => fill_new_i(res),
-        Type::L => fill_new_l(res),
-        Type::T => fill_new_t(res),
-        Type::O => fill_new_o(res),
-        Type::S => fill_new_s(res),
+    // rotate is where all our funny map happens!
+    // we rotate tetronimo around rotation point
+    // (0th element of pixel array)
+    pub fn rotate(&mut self, clockwise: bool) {
+        for i in 1..4 {
+            let relative_x = self.pixels[i].x - self.pixels[0].x;
+            let relative_y = self.pixels[0].y - self.pixels[i].y;
+
+            if clockwise {
+                self.pixels[i].x = self.pixels[0].x + relative_y;
+                self.pixels[i].y = self.pixels[0].y + relative_x;
+            } else {
+                self.pixels[i].x = self.pixels[0].x - relative_y;
+                self.pixels[i].y = self.pixels[0].y - relative_x;
+            }
+        }
     }
-}
-
-fn fill_new_i(mut ps: [Pixel; 4]) -> [Pixel; 4] {
-    let c = Color::Cyan;
-
-    ps[0] = Pixel{x: 4, y:-1, c: c};
-    ps[1] = Pixel{x: 3, y:-1, c: c};
-    ps[2] = Pixel{x: 5, y:-1, c: c};
-    ps[3] = Pixel{x: 6, y:-1, c: c};
-
-    ps
-}
-
-fn fill_new_l(mut ps: [Pixel; 4]) -> [Pixel; 4] {
-    let c = Color::Yellow;
-
-    ps[0] = Pixel{x: 4, y:-1, c: c};
-    ps[1] = Pixel{x: 3, y:-1, c: c};
-    ps[2] = Pixel{x: 5, y:-1, c: c};
-    ps[3] = Pixel{x: 5, y:-2, c: c}; // upper
-
-    ps
-}
-
-fn fill_new_t(mut ps: [Pixel; 4]) -> [Pixel; 4] {
-    let c = Color::Magenta;
-
-    ps[0] = Pixel{x: 4, y:-1, c: c};
-    ps[1] = Pixel{x: 4, y:-2, c: c};
-    ps[2] = Pixel{x: 3, y:-1, c: c};
-    ps[3] = Pixel{x: 5, y:-1, c: c};
-
-    ps
-}
-
-fn fill_new_s(mut ps: [Pixel; 4]) -> [Pixel; 4] {
-    let c = Color::Green;
-
-    ps[0] = Pixel{x: 4, y:-1, c: c};
-    ps[1] = Pixel{x: 3, y:-1, c: c};
-    ps[2] = Pixel{x: 4, y:-2, c: c};
-    ps[3] = Pixel{x: 5, y:-2, c: c};
-
-    ps
-}
-
-fn fill_new_o(mut ps: [Pixel; 4]) -> [Pixel; 4] {
-    let c = Color::LightYellow;
-
-    ps[0] = Pixel{x: 4, y:-1, c: c};
-    ps[1] = Pixel{x: 4, y:-2, c: c};
-    ps[2] = Pixel{x: 5, y:-2, c: c};
-    ps[3] = Pixel{x: 5, y:-1, c: c};
-
-    ps
 }
