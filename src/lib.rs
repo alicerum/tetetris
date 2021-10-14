@@ -51,7 +51,20 @@ pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
                 },
             },
             Event::Tick => {
-                board.tick();
+                // if tetronimo fell to the end
+                if board.tick() {
+                    loop {
+                        let delete_row = board.can_delete();
+                        if delete_row == -1 {
+                            break;
+                        }
+
+                        board.delete(delete_row);
+                        terminal.draw(|f| ui::draw(f, &board))?;
+                        board.collapse(delete_row);
+                        terminal.draw(|f| ui::draw(f, &board))?;
+                    }
+                }
                 // process tick here
             },
         }

@@ -19,10 +19,12 @@ pub enum Type {
     T,
     S,
     O,
+    J,
+    Z,
 }
 
 pub struct TetronimoBag {
-    types: [Type; 5],
+    types: [Type; 7],
     size: u8,
 }
 
@@ -30,7 +32,7 @@ impl TetronimoBag {
     pub fn new() -> TetronimoBag {
         TetronimoBag {
             types: TetronimoBag::fill_bag(),
-            size: 5,
+            size: 7,
         }
     }
 
@@ -44,13 +46,13 @@ impl TetronimoBag {
         self.size -= 1;
         if self.size == 0 {
             self.types = TetronimoBag::fill_bag();
-            self.size = 5;
+            self.size = 7;
         }
         result
     }
 
-    fn fill_bag() -> [Type; 5] {
-        [Type::I, Type::L, Type::T, Type::S, Type::O]
+    fn fill_bag() -> [Type; 7] {
+        [Type::I, Type::L, Type::T, Type::S, Type::O, Type::J, Type::Z]
     }
 }
 

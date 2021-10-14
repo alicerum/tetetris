@@ -12,6 +12,8 @@ pub fn fill_new_pixels(t: Type) -> [Pixel; 4] {
         Type::T => fill_new_t(res),
         Type::O => fill_new_o(res),
         Type::S => fill_new_s(res),
+        Type::J => fill_new_j(res),
+        Type::Z => fill_new_z(res),
     }
 }
 
@@ -65,6 +67,28 @@ fn fill_new_o(mut ps: [Pixel; 4]) -> [Pixel; 4] {
     ps[0] = Pixel{x: 4, y:-1, c: c};
     ps[1] = Pixel{x: 4, y:-2, c: c};
     ps[2] = Pixel{x: 5, y:-2, c: c};
+    ps[3] = Pixel{x: 5, y:-1, c: c};
+
+    ps
+}
+
+fn fill_new_j(mut ps: [Pixel; 4]) -> [Pixel; 4] {
+    let c = Color::LightBlue;
+
+    ps[0] = Pixel{x: 4, y:-1, c: c};
+    ps[1] = Pixel{x: 3, y:-1, c: c};
+    ps[2] = Pixel{x: 3, y:-2, c: c};
+    ps[3] = Pixel{x: 5, y:-1, c: c};
+
+    ps
+}
+
+fn fill_new_z(mut ps: [Pixel; 4]) -> [Pixel; 4] {
+    let c = Color::Red;
+
+    ps[0] = Pixel{x: 4, y:-1, c: c};
+    ps[1] = Pixel{x: 3, y:-2, c: c};
+    ps[2] = Pixel{x: 4, y:-2, c: c};
     ps[3] = Pixel{x: 5, y:-1, c: c};
 
     ps

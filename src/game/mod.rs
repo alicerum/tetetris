@@ -55,11 +55,12 @@ impl Board {
         self.bag.draw_next()
     }
 
-    pub fn tick(&mut self) {
+    // return true in case tetronimo was stuck
+    pub fn tick(&mut self) -> bool {
         if self.game_over {
             // TODO: draw game over text and maybe final score
             // on the screen in case of game over
-            return;
+            return false;
         }
         match &mut self.falling {
             Some(t) => {
@@ -74,12 +75,15 @@ impl Board {
                         self.board.insert((p.x, p.y), p.c);
                     }
                     self.falling = None;
+                    return true;
                 }
             },
             None => {
                 self.falling = Some(Tetronimo::new(self.next_tetronimo_type()));
             },
         }
+
+        false
     }
 
     pub fn check_pixel(&self, x: i8, y: i8) -> Option<Color> {
@@ -90,5 +94,41 @@ impl Board {
         }
 
         self.board.get(&(x, y)).copied()
+    }
+
+    pub fn can_delete(&self) -> i8 {
+        for row in (0..20).rev() {
+            let mut all_filled = true;
+
+            for col in 0..10 {
+                if self.board.get(&(col, row)).is_none() {
+                    all_filled = false;
+                    break;
+                }
+            }
+
+            if all_filled {
+                return row;
+            }
+        }
+        -1
+    }
+
+    pub fn delete(&mut self, row: i8) {
+        for col in 0..10 {
+            self.board.remove(&(col, row));
+        }
+    }
+
+    pub fn collapse(&mut self, row: i8) {
+        for row in (-2..row+1).rev() {
+            for col in 0..10 {
+                if self.board.get(&(col, row-1)).is_none() {
+                    self.board.remove(&(col, row));
+                } else {
+                    self.board.insert((col,row), self.board[&(col, row-1)]);
+                }
+            }
+        }
     }
 }
