@@ -117,7 +117,7 @@ impl Tetronimo {
         }
 
         self.rotation += if clockwise {1} else {-1};
-        if self.rotation == 0 {self.rotation = 3}
+        if self.rotation == -1 {self.rotation = 3}
         if self.rotation == 4 {self.rotation = 0}
     }
 
