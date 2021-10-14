@@ -47,7 +47,7 @@ impl Board {
 
     pub fn rotate(&mut self, clockwise: bool) {
         if let Some(t) = &mut self.falling {
-            t.rotate(clockwise);
+            t.rotate_and_kick(clockwise, &self.board);
         }
     }
 

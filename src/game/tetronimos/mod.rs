@@ -21,13 +21,6 @@ pub enum Type {
     O,
 }
 
-impl Type {
-    // fill_bag fills the bag of enum types
-    fn fill_bag() -> [Type; 5] {
-        [Type::I, Type::L, Type::T, Type::S, Type::O]
-    }
-}
-
 pub struct TetronimoBag {
     types: [Type; 5],
     size: u8,
@@ -35,7 +28,10 @@ pub struct TetronimoBag {
 
 impl TetronimoBag {
     pub fn new() -> TetronimoBag {
-        TetronimoBag{types: Type::fill_bag(), size: 5}
+        TetronimoBag {
+            types: TetronimoBag::fill_bag(),
+            size: 5,
+        }
     }
 
     pub fn draw_next(&mut self) -> Type {
@@ -47,21 +43,30 @@ impl TetronimoBag {
         }
         self.size -= 1;
         if self.size == 0 {
-            self.types = Type::fill_bag();
+            self.types = TetronimoBag::fill_bag();
             self.size = 5;
         }
         result
+    }
+
+    fn fill_bag() -> [Type; 5] {
+        [Type::I, Type::L, Type::T, Type::S, Type::O]
     }
 }
 
 pub struct Tetronimo {
     pub pixels: [Pixel; 4],
+
+    t: Type,
+    rotation: i8,
 }
 
 impl Tetronimo {
     pub fn new (t: Type) -> Tetronimo {
         Tetronimo {
             pixels: tables::fill_new_pixels(t),
+            t: t,
+            rotation: 0,
         }
     }
 
@@ -97,7 +102,7 @@ impl Tetronimo {
     // rotate is where all our funny map happens!
     // we rotate tetronimo around rotation point
     // (0th element of pixel array)
-    pub fn rotate(&mut self, clockwise: bool) {
+    fn rotate(&mut self, clockwise: bool) {
         for i in 1..4 {
             let relative_x = self.pixels[i].x - self.pixels[0].x;
             let relative_y = self.pixels[0].y - self.pixels[i].y;
@@ -110,5 +115,42 @@ impl Tetronimo {
                 self.pixels[i].y = self.pixels[0].y - relative_x;
             }
         }
+
+        self.rotation += if clockwise {1} else {-1};
+        if self.rotation == 0 {self.rotation = 3}
+        if self.rotation == 4 {self.rotation = 0}
+    }
+
+    pub fn rotate_and_kick(&mut self, clockwise: bool, board: &HashMap<(i8, i8), Color>) {
+        let previous_rotation = self.rotation;
+        self.rotate(clockwise);
+
+        let offsets = tables::get_kick_offsets(previous_rotation, self.rotation, self.t);
+        for o in offsets {
+            let mut collides = false;
+            for p in self.pixels {
+                let new_x = p.x + o.0;
+                let new_y = p.y - o.1;
+
+                if new_x < 0 || new_x > 9 || new_y > 19 ||
+                    board.get(&(new_x, new_y)).is_some() {
+
+                        collides = true;
+                        break;
+                }
+            }
+
+            if !collides {
+                self.pixels.iter_mut().for_each(|p| {
+                    p.x += o.0;
+                    p.y -= o.1;
+                });
+                // we are completely done here
+                return;
+            }
+        }
+
+        // we couldn't find any good kick for us, time to give up
+        self.rotate(!clockwise);
     }
 }
