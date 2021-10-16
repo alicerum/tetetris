@@ -11,6 +11,8 @@ pub enum ScoreAction {
 
 pub struct Board {
     falling: Option<Tetronimo>,
+    upcoming: Option<Tetronimo>,
+
     board: HashMap<(i8, i8), Color>,
 
     score: u64,
@@ -23,13 +25,12 @@ impl Board {
     pub fn new() -> Board {
         Board{
             falling: None,
+            upcoming: None,
+
             board: HashMap::new(),
             score: 0,
             game_over: false,
 
-            // TODO: rework the bag thing
-            // right now, it uses multiple vectors and some uncomfortable
-            // shuffling memory around, should be nicer and neater
             bag: TetronimoBag::new(),
         }
     }
@@ -80,7 +81,13 @@ impl Board {
                 }
             },
             None => {
-                self.falling = Some(Tetronimo::new(self.next_tetronimo_type()));
+                if let Some(_) = self.upcoming {
+                    self.falling = self.upcoming.take();
+                } else {
+                    self.falling = Some(Tetronimo::new(self.next_tetronimo_type()));
+                }
+
+                self.upcoming = Some(Tetronimo::new(self.next_tetronimo_type()));
             },
         }
 
@@ -166,5 +173,9 @@ impl Board {
             },
             ScoreAction::FallLength(n) => n as u64,
         }
+    }
+
+    pub fn upcoming_pixels(&self) -> Option<&[tetronimos::Pixel; 4]> {
+        self.upcoming.as_ref().map(|t| &t.pixels)
     }
 }

@@ -102,7 +102,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
             .margin(1)
             .constraints([
                 Constraint::Length(1),
-                Constraint::Length(3),
+                Constraint::Length(4),
                 Constraint::Min(0),
             ])
             .split(right_pad);
@@ -112,5 +112,40 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
                     format!("Score: {}", game_board.score()),
                     Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)));
         f.render_widget(score_block, right_info[0]);
+
+        if let Some(ps) = game_board.upcoming_pixels() {
+            let upcoming_rect = Layout::default()
+                .direction(Direction::Horizontal)
+                .constraints([
+                    Constraint::Length(8),
+                ])
+                .split(right_info[1])[0];
+            let cols = vec![Constraint::Length(2); 5];
+            let rows = vec![Constraint::Length(1); 4];
+
+            let ccols = Layout::default()
+                .constraints(cols)
+                .direction(Direction::Horizontal)
+                .split(upcoming_rect);
+            for col in 0..4 {
+                let crows = Layout::default()
+                    .constraints(rows.clone())
+                    .direction(Direction::Vertical)
+                    .split(ccols[col]);
+
+                for row in 0..4 {
+                    let cell = crows[row];
+                    let p_x = (col as i8) + 3;
+                    let p_y = (row as i8) - 4;
+
+                    for i in 0..4 {
+                        if ps[i].x == p_x && ps[i].y == p_y {
+                            let b = Block::default().style(Style::default().bg(ps[i].c));
+                            f.render_widget(b, cell);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
