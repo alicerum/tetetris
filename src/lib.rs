@@ -44,10 +44,10 @@ pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
                 Key::Down => {
                     board.move_down();
                 },
-                Key::Char(' ') => {
+                Key::Char(' ') | Key::Char('x') | Key::Up => {
                     board.rotate(true);
                 },
-                Key::Char('x') => {
+                Key::Char('z') => {
                     board.rotate(false);
                 },
                 _ => {

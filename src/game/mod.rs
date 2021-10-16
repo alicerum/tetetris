@@ -178,4 +178,8 @@ impl Board {
     pub fn upcoming_pixels(&self) -> Option<&[tetronimos::Pixel; 4]> {
         self.upcoming.as_ref().map(|t| &t.pixels)
     }
+
+    pub fn is_game_over(&self) -> bool {
+        self.game_over
+    }
 }
