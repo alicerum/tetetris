@@ -1,6 +1,6 @@
 use std::fmt;
 use std::error::Error;
-use clap::{App, Arg};
+use clap::{crate_version, App, Arg};
 
 pub struct Flags {
     pub tick: u32,
@@ -27,7 +27,7 @@ impl Error for ParseError {}
 
 pub fn config_flags() -> Result<Flags, ParseError> {
     let matches = App::new("tetetris")
-        .version("1.0.0")
+        .version(crate_version!())
         .author("Alice Rum <wyvie@wyvie.org>")
         .arg(Arg::with_name("tick")
             .short("t")

@@ -8,11 +8,11 @@ use termion::raw::IntoRawMode;
 use termion::screen::AlternateScreen;
 use termion::event::Key;
 use events::{Event, Events};
-use game::{Board, ScoreAction};
+use game::{Board, ScoreAction, MoveDirection};
 
-pub mod ui;
-pub mod events;
-pub mod game;
+mod ui;
+mod events;
+mod game;
 pub mod flags;
 
 pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
@@ -36,22 +36,23 @@ pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
                     break;
                 },
                 Key::Right => {
-                    board.move_right();
+                    board.move_tetrinomo(MoveDirection::Right);
                 },
                 Key::Left => {
-                    board.move_left();
+                    board.move_tetrinomo(MoveDirection::Left);
                 },
                 Key::Down => {
-                    board.move_down();
+                    board.move_tetrinomo(MoveDirection::Down);
                 },
                 Key::Char(' ') | Key::Char('x') | Key::Up => {
                     board.rotate(true);
                 },
+                Key::Esc => board.toggle_pause(),
                 Key::Char('z') => {
                     board.rotate(false);
                 },
                 _ => {
-                    // process keys here
+                    // nothing to do here
                 },
             },
             Event::Tick => {

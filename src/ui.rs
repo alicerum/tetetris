@@ -6,12 +6,13 @@ use tui::style::{Style, Color, Modifier};
 use tui::layout::{Layout, Direction, Constraint};
 use tui::widgets::{Block, Borders};
 
-const HELP_LEN: usize = 5;
+const HELP_LEN: usize = 6;
 const HELP_LINES: [&str; HELP_LEN] = [
     "HELP:",
     "Directional keys: ← → ↓",
     "Rotate clockwise: ↑ space x",
     "Rotate counterclockwize: z",
+    "Pause: esc",
     "Quit: q C-c",
 ];
 
@@ -188,9 +189,19 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
         }
     }
 
-    // Now, if game has ended, it is time to render end game message on top
-    if game_board.is_game_over() {
-        let msg = "! GAME  OVER !";
+    // Now, if game has ended or is paused,
+    // it is time to render end game message on top
+    if game_board.is_game_over() || game_board.is_paused() {
+        let msg_color;
+        let msg;
+        if game_board.is_game_over() {
+            msg = "! GAME  OVER !";
+            msg_color = Color::Red;
+        } else {
+            msg = "    PAUSED    ";
+            msg_color = Color::Green;
+        };
+
         let r = houter[1];
         let cs = [
             Constraint::Length(5 * cell_height),
@@ -222,7 +233,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
         let title_widget = Block::default()
             .title(Span::styled(msg,
                     Style::default()
-                        .fg(Color::Red)
+                        .fg(msg_color)
                         .add_modifier(Modifier::BOLD)));
 
         let msg = Layout::default()

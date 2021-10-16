@@ -9,6 +9,12 @@ pub enum ScoreAction {
     FallLength(u8),
 }
 
+pub enum MoveDirection {
+    Down,
+    Left,
+    Right,
+}
+
 pub struct Board {
     falling: Option<Tetronimo>,
     upcoming: Option<Tetronimo>,
@@ -17,6 +23,7 @@ pub struct Board {
 
     score: u64,
     game_over: bool,
+    pause: bool,
 
     bag: TetronimoBag,
 }
@@ -30,24 +37,37 @@ impl Board {
             board: HashMap::new(),
             score: 0,
             game_over: false,
+            pause: false,
 
             bag: TetronimoBag::new(),
         }
     }
 
-    pub fn move_left(&mut self) {
+    pub fn move_tetrinomo(&mut self, direction: MoveDirection) {
+        if self.is_paused() {
+            return;
+        }
+
+        match direction {
+            MoveDirection::Down => self.move_down(),
+            MoveDirection::Left => self.move_left(),
+            MoveDirection::Right => self.move_right(),
+        }
+    }
+
+    fn move_left(&mut self) {
         if let Some(t) = &mut self.falling {
             t.move_offset((-1, 0), &self.board);
         }
     }
 
-    pub fn move_right(&mut self) {
+    fn move_right(&mut self) {
         if let Some(t) = &mut self.falling {
             t.move_offset((1, 0), &self.board);
         }
     }
 
-    pub fn move_down(&mut self) {
+    fn move_down(&mut self) {
         if let Some(t) = &mut self.falling {
             if t.move_offset((0, 1), &self.board) {
                 t.inc_dropped();
@@ -56,6 +76,10 @@ impl Board {
     }
 
     pub fn rotate(&mut self, clockwise: bool) {
+        if self.is_paused() {
+            return;
+        }
+
         if let Some(t) = &mut self.falling {
             t.rotate_and_kick(clockwise, &self.board);
         }
@@ -67,9 +91,9 @@ impl Board {
 
     // return true in case tetronimo was stuck
     pub fn tick(&mut self) -> bool {
-        if self.game_over {
-            // TODO: draw game over text and maybe final score
-            // on the screen in case of game over
+        if self.game_over || self.pause {
+            // if game over or paused, don't make anything fall
+            // just ignore the ticks
             return false;
         }
         match &mut self.falling {
@@ -181,5 +205,13 @@ impl Board {
 
     pub fn is_game_over(&self) -> bool {
         self.game_over
+    }
+
+    pub fn toggle_pause(&mut self) {
+        self.pause = !self.pause;
+    }
+
+    pub fn is_paused(&self) -> bool {
+        self.pause
     }
 }
