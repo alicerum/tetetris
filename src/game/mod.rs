@@ -7,6 +7,7 @@ use tui::style::Color;
 pub enum ScoreAction {
     RowCleared(u8),
     FallLength(u8),
+    HardDrop(u8),
 }
 
 pub enum MoveDirection {
@@ -118,6 +119,17 @@ impl Board {
         false
     }
 
+    pub fn hard_drop(&mut self) {
+        if let Some(t) = self.falling.as_mut() {
+            let mut rows_dropped = 0;
+            while t.move_offset((0, 1), &self.board) {
+                rows_dropped += 1;
+            }
+            self.lock_piece();
+            self.add_score(ScoreAction::HardDrop(rows_dropped));
+        }
+    }
+
     fn lock_piece(&mut self) {
         let t = self.falling.as_ref().unwrap();
         for p in t.pixels {
@@ -196,6 +208,7 @@ impl Board {
                 }
             },
             ScoreAction::FallLength(n) => n as u64,
+            ScoreAction::HardDrop(n) => n as u64 * 2,
         }
     }
 

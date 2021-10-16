@@ -6,12 +6,13 @@ use tui::style::{Style, Color, Modifier};
 use tui::layout::{Layout, Direction, Constraint};
 use tui::widgets::{Block, Borders};
 
-const HELP_LEN: usize = 6;
+const HELP_LEN: usize = 7;
 const HELP_LINES: [&str; HELP_LEN] = [
     "HELP:",
     "Directional keys: ← → ↓",
     "Rotate clockwise: ↑ space x",
     "Rotate counterclockwize: z",
+    "Hard drop: ret",
     "Pause: esc",
     "Quit: q C-c",
 ];

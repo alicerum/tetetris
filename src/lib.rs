@@ -3,7 +3,7 @@ use std::error::Error;
 use std::thread;
 use std::time::Duration;
 use tui::Terminal;
-use tui::backend::TermionBackend;
+use tui::backend::{Backend, TermionBackend};
 use termion::raw::IntoRawMode;
 use termion::screen::AlternateScreen;
 use termion::event::Key;
@@ -47,6 +47,13 @@ pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
                 Key::Char(' ') | Key::Char('x') | Key::Up => {
                     board.rotate(true);
                 },
+                Key::Char('\n') => {
+                    board.hard_drop();
+
+                    // we should check whether we can delete rows
+                    // after hard drop, too
+                    check_rows(&mut terminal, &mut board)?;
+                },
                 Key::Esc => board.toggle_pause(),
                 Key::Char('z') => {
                     board.rotate(false);
@@ -58,27 +65,33 @@ pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
             Event::Tick => {
                 // if tetronimo fell to the end
                 if board.tick() {
-                    let mut amount_deleted = 0;
-                    loop {
-                        let delete_row = board.can_delete();
-                        if delete_row == -1 {
-                            break;
-                        }
-                        amount_deleted += 1;
-
-                        board.delete(delete_row);
-                        terminal.draw(|f| ui::draw(f, &board))?;
-                        thread::sleep(Duration::from_millis(20));
-                        board.collapse(delete_row);
-                        terminal.draw(|f| ui::draw(f, &board))?;
-                        thread::sleep(Duration::from_millis(20));
-                    }
-                    board.add_score(ScoreAction::RowCleared(amount_deleted));
+                    check_rows(&mut terminal, &mut board)?;
                 }
                 // process tick here
             },
         }
     }
+
+    Ok(())
+}
+
+fn check_rows<B: Backend>(terminal: &mut Terminal<B>, board: &mut Board) -> Result<(), Box<dyn Error>> {
+    let mut amount_deleted = 0;
+    loop {
+        let delete_row = board.can_delete();
+        if delete_row == -1 {
+            break;
+        }
+        amount_deleted += 1;
+
+        board.delete(delete_row);
+        terminal.draw(|f| ui::draw(f, &board))?;
+        thread::sleep(Duration::from_millis(20));
+        board.collapse(delete_row);
+        terminal.draw(|f| ui::draw(f, &board))?;
+        thread::sleep(Duration::from_millis(20));
+    }
+    board.add_score(ScoreAction::RowCleared(amount_deleted));
 
     Ok(())
 }
