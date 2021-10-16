@@ -59,6 +59,8 @@ impl TetronimoBag {
 pub struct Tetronimo {
     pub pixels: [Pixel; 4],
 
+    dropped: u8,
+
     t: Type,
     rotation: i8,
 }
@@ -67,9 +69,18 @@ impl Tetronimo {
     pub fn new (t: Type) -> Tetronimo {
         Tetronimo {
             pixels: tables::fill_new_pixels(t),
+            dropped: 0,
             t: t,
             rotation: 0,
         }
+    }
+
+    pub fn inc_dropped(&mut self) {
+        self.dropped += 1;
+    }
+
+    pub fn dropped(&self) -> u8 {
+        self.dropped
     }
 
     // move_tick returns false in case we cannot move tetronimo anymore

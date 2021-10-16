@@ -1,13 +1,19 @@
-pub mod tetronimos;
+mod tetronimos;
 
 use std::collections::HashMap;
 use tetronimos::{Tetronimo, Type, TetronimoBag};
 use tui::style::Color;
 
+pub enum ScoreAction {
+    RowCleared(u8),
+    FallLength(u8),
+}
+
 pub struct Board {
     falling: Option<Tetronimo>,
     board: HashMap<(i8, i8), Color>,
 
+    score: u64,
     game_over: bool,
 
     bag: TetronimoBag,
@@ -18,6 +24,7 @@ impl Board {
         Board{
             falling: None,
             board: HashMap::new(),
+            score: 0,
             game_over: false,
 
             // TODO: rework the bag thing
@@ -41,7 +48,9 @@ impl Board {
 
     pub fn move_down(&mut self) {
         if let Some(t) = &mut self.falling {
-            t.move_offset((0, 1), &self.board);
+            if t.move_offset((0, 1), &self.board) {
+                t.inc_dropped();
+            }
         }
     }
 
@@ -66,15 +75,7 @@ impl Board {
             Some(t) => {
                 // if cannot move anymore
                 if !t.move_offset((0, 1), &self.board) {
-                    for p in &t.pixels {
-                        if p.y < 0 {
-                            // piece couldn't move and part of it was above the screen
-                            // is how game over is determined for tetris
-                            self.game_over = true; 
-                        }
-                        self.board.insert((p.x, p.y), p.c);
-                    }
-                    self.falling = None;
+                    self.lock_piece();
                     return true;
                 }
             },
@@ -84,6 +85,21 @@ impl Board {
         }
 
         false
+    }
+
+    fn lock_piece(&mut self) {
+        let t = self.falling.as_ref().unwrap();
+        for p in t.pixels {
+            if p.y < 0 {
+                // piece couldn't move and part of it was above the screen
+                // is how game over is determined for tetris
+                self.game_over = true; 
+            }
+            self.board.insert((p.x, p.y), p.c);
+        }
+        let fall = t.dropped();
+        self.add_score(ScoreAction::FallLength(fall));
+        self.falling = None;
     }
 
     pub fn check_pixel(&self, x: i8, y: i8) -> Option<Color> {
@@ -129,6 +145,26 @@ impl Board {
                     self.board.insert((col,row), self.board[&(col, row-1)]);
                 }
             }
+        }
+    }
+
+    pub fn score(&self) -> u64 {
+        self.score
+    }
+
+    pub fn add_score(&mut self, action: ScoreAction) {
+        self.score += match action {
+            ScoreAction::RowCleared(n) => {
+                match n {
+                    0 => 0,
+                    1 => 40,
+                    2 => 100,
+                    3 => 300,
+                    4 => 1200,
+                    _ => 1200,
+                }
+            },
+            ScoreAction::FallLength(n) => n as u64,
         }
     }
 }

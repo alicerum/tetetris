@@ -40,7 +40,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
     let vpadding = (term_rect.height - board_height) / 2;
     let hpadding = (term_rect.width - board_width) / 2;
 
-    let outer = Layout::default()
+    let vouter = Layout::default()
         .direction(Direction::Vertical)
         .constraints(vec![
             Constraint::Min(vpadding),
@@ -49,20 +49,23 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
         ])
         .split(term_rect);
 
-    let board_with_border = Layout::default()
+    let houter = Layout::default()
         .direction(Direction::Horizontal)
         .constraints(vec![
             Constraint::Min(hpadding),
             Constraint::Length(board_width),
             Constraint::Min(hpadding),
         ])
-        .split(outer[1]);
+        .split(vouter[1]);
+
+    let left_pad = houter[0];
+    let right_pad = houter[2];
 
     let block = Block::default()
         .borders(Borders::ALL)
         .title(Span::styled(" TeTetris ",
                 Style::default().fg(Color::Red).add_modifier(Modifier::BOLD)));
-    f.render_widget(block, board_with_border[1]);
+    f.render_widget(block, houter[1]);
 
     let mut vcs = Vec::new();
     let mut hcs = Vec::new();
@@ -76,7 +79,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
         .direction(Direction::Horizontal)
         .margin(1)
         .constraints(vcs)
-        .split(board_with_border[1]);
+        .split(houter[1]);
 
     for i in 0..10 {
         let rows = Layout::default()
@@ -91,5 +94,23 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
                 f.render_widget(cell_block, rows[j as usize]);
             }
         }
+    }
+
+    if right_pad.width > 0 {
+        let right_info = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(1)
+            .constraints([
+                Constraint::Length(1),
+                Constraint::Length(3),
+                Constraint::Min(0),
+            ])
+            .split(right_pad);
+
+        let score_block = Block::default()
+            .title(Span::styled(
+                    format!("Score: {}", game_board.score()),
+                    Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)));
+        f.render_widget(score_block, right_info[0]);
     }
 }
