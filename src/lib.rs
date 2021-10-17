@@ -78,10 +78,10 @@ pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
 fn check_rows<B: Backend>(terminal: &mut Terminal<B>, board: &mut Board) -> Result<(), Box<dyn Error>> {
     let mut amount_deleted = 0;
     loop {
-        let delete_row = board.can_delete();
-        if delete_row == -1 {
-            break;
-        }
+        let delete_row = match board.can_delete() {
+            Some(r) => r,
+            None => break,
+        };
         amount_deleted += 1;
 
         board.delete(delete_row);

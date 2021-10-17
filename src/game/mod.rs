@@ -155,7 +155,7 @@ impl Board {
         self.board.get(&(x, y)).copied()
     }
 
-    pub fn can_delete(&self) -> i8 {
+    pub fn can_delete(&self) -> Option<i8> {
         for row in (0..20).rev() {
             let mut all_filled = true;
 
@@ -167,10 +167,10 @@ impl Board {
             }
 
             if all_filled {
-                return row;
+                return Some(row);
             }
         }
-        -1
+        None
     }
 
     pub fn delete(&mut self, row: i8) {
