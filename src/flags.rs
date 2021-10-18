@@ -28,7 +28,6 @@ impl Error for ParseError {}
 pub fn config_flags() -> Result<Flags, ParseError> {
     let matches = App::new("tetetris")
         .version(crate_version!())
-        .author("Alice Rum <wyvie@wyvie.org>")
         .arg(Arg::with_name("tick")
             .short("t")
             .long("tick")
