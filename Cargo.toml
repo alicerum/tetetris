@@ -6,9 +6,15 @@ description = "TeTetris is a terminal tetris game"
 readme = "README.md"
 authors = ["Alice Rum <wyvie@wyvie.org>"]
 
-
 [dependencies]
-tui = "0.16"
-termion = "1.5"
+anyhow = "1.0.44"
 clap = "2.33.3"
+directories-next = "2.0.0"
 rand = "0.8.4"
+serde = { version = "1.0.130", features = ["derive"] }
+termion = "1.5"
+toml = "0.5.8"
+tui = "0.16"
+
+[dev-dependencies]
+serde_test = "1.0.130"
