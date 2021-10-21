@@ -1,4 +1,5 @@
 use crate::game::Board;
+use crate::help::Help;
 use tui::backend::Backend;
 use tui::layout::{Constraint, Direction, Layout};
 use tui::style::{Color, Modifier, Style};
@@ -6,18 +7,7 @@ use tui::text::Span;
 use tui::widgets::{Block, Borders};
 use tui::Frame;
 
-const HELP_LEN: usize = 7;
-const HELP_LINES: [&str; HELP_LEN] = [
-    "HELP:",
-    "Directional keys: ← → ↓",
-    "Rotate clockwise: ↑ space x",
-    "Rotate counterclockwize: z",
-    "Hard drop: ret",
-    "Pause: esc",
-    "Quit: q C-c",
-];
-
-pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
+pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board, help: &Help) {
     let term_rect = f.size();
 
     let mut cell_height = 2;
@@ -103,7 +93,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
     }
 
     if left_pad.width > 0 {
-        let constraints = [Constraint::Length(HELP_LEN as u16), Constraint::Min(0)];
+        let constraints = [Constraint::Length(help.len() as u16), Constraint::Min(0)];
 
         let help_block = Layout::default()
             .constraints(constraints)
@@ -112,18 +102,18 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
             .split(left_pad)[0];
 
         let lines = Layout::default()
-            .constraints([Constraint::Length(1); HELP_LEN])
+            .constraints(vec![Constraint::Length(1); help.len()])
             .direction(Direction::Vertical)
             .split(help_block);
 
-        for i in 0..HELP_LEN {
-            let msg_len = HELP_LINES[i].chars().count();
+        for (i, line) in help.iter().enumerate() {
+            let msg_len = line.chars().count();
             let msg_rect = Layout::default()
                 .direction(Direction::Horizontal)
                 .constraints([Constraint::Min(0), Constraint::Length(msg_len as u16)])
                 .split(lines[i])[1];
 
-            let b = Block::default().title(HELP_LINES[i]);
+            let b = Block::default().title(line);
             f.render_widget(b, msg_rect);
         }
     }

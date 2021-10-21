@@ -1,18 +1,11 @@
 use std::process;
-use tetetris;
-use tetetris::flags;
 
-fn main() {
-    let f = match flags::config_flags() {
-        Ok(f) => f,
-        Err(e) => {
-            eprintln!("{}", e);
-            process::exit(1);
-        }
-    };
+use anyhow::Result;
+use tetetris::{flags, settings};
 
-    if let Err(e) = tetetris::run(f) {
-        eprintln!("Error: {}", e);
-        process::exit(1);
-    }
+fn main() -> Result<()> {
+    let f = flags::config_flags()?;
+    let s = settings::load()?;
+
+    tetetris::run(f, s)
 }
