@@ -1,6 +1,6 @@
+use std::io;
 use std::sync::mpsc;
 use std::thread;
-use std::io;
 use std::time::Duration;
 
 use termion::event::Key;
@@ -35,12 +35,12 @@ impl Events {
         thread::spawn(move || loop {
             if let Err(e) = tx2.send(Event::Tick) {
                 eprintln!("Error while processing tick: {}", e);
-                return
+                return;
             }
 
             thread::sleep(Duration::from_millis(u64::from(tick)));
         });
-        
+
         Events { rx }
     }
 

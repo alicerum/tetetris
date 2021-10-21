@@ -1,7 +1,7 @@
 mod tetronimos;
 
 use std::collections::HashMap;
-use tetronimos::{Tetronimo, Type, TetronimoBag};
+use tetronimos::{Tetronimo, TetronimoBag, Type};
 use tui::style::Color;
 
 pub enum ScoreAction {
@@ -31,7 +31,7 @@ pub struct Board {
 
 impl Board {
     pub fn new() -> Board {
-        Board{
+        Board {
             falling: None,
             upcoming: None,
 
@@ -104,7 +104,7 @@ impl Board {
                     self.lock_piece();
                     return true;
                 }
-            },
+            }
             None => {
                 if let Some(_) = self.upcoming {
                     self.falling = self.upcoming.take();
@@ -113,7 +113,7 @@ impl Board {
                 }
 
                 self.upcoming = Some(Tetronimo::new(self.next_tetronimo_type()));
-            },
+            }
         }
 
         false
@@ -136,7 +136,7 @@ impl Board {
             if p.y < 0 {
                 // piece couldn't move and part of it was above the screen
                 // is how game over is determined for tetris
-                self.game_over = true; 
+                self.game_over = true;
             }
             self.board.insert((p.x, p.y), p.c);
         }
@@ -180,12 +180,12 @@ impl Board {
     }
 
     pub fn collapse(&mut self, row: i8) {
-        for row in (-2..row+1).rev() {
+        for row in (-2..row + 1).rev() {
             for col in 0..10 {
-                if self.board.get(&(col, row-1)).is_none() {
+                if self.board.get(&(col, row - 1)).is_none() {
                     self.board.remove(&(col, row));
                 } else {
-                    self.board.insert((col,row), self.board[&(col, row-1)]);
+                    self.board.insert((col, row), self.board[&(col, row - 1)]);
                 }
             }
         }
@@ -197,15 +197,13 @@ impl Board {
 
     pub fn add_score(&mut self, action: ScoreAction) {
         self.score += match action {
-            ScoreAction::RowCleared(n) => {
-                match n {
-                    0 => 0,
-                    1 => 40,
-                    2 => 100,
-                    3 => 300,
-                    4 => 1200,
-                    _ => 1200,
-                }
+            ScoreAction::RowCleared(n) => match n {
+                0 => 0,
+                1 => 40,
+                2 => 100,
+                3 => 300,
+                4 => 1200,
+                _ => 1200,
             },
             ScoreAction::FallLength(n) => n as u64,
             ScoreAction::HardDrop(n) => n as u64 * 2,

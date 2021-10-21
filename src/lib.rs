@@ -1,19 +1,19 @@
-use std::io;
+use events::{Event, Events};
+use game::{Board, MoveDirection, ScoreAction};
 use std::error::Error;
+use std::io;
 use std::thread;
 use std::time::Duration;
-use tui::Terminal;
-use tui::backend::{Backend, TermionBackend};
+use termion::event::Key;
 use termion::raw::IntoRawMode;
 use termion::screen::AlternateScreen;
-use termion::event::Key;
-use events::{Event, Events};
-use game::{Board, ScoreAction, MoveDirection};
+use tui::backend::{Backend, TermionBackend};
+use tui::Terminal;
 
-mod ui;
 mod events;
-mod game;
 pub mod flags;
+mod game;
+mod ui;
 
 pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
     let stdout = io::stdout().into_raw_mode()?;
@@ -34,33 +34,33 @@ pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
             Event::Input(key) => match key {
                 Key::Char('q') | Key::Ctrl('c') => {
                     break;
-                },
+                }
                 Key::Right => {
                     board.move_tetrinomo(MoveDirection::Right);
-                },
+                }
                 Key::Left => {
                     board.move_tetrinomo(MoveDirection::Left);
-                },
+                }
                 Key::Down => {
                     board.move_tetrinomo(MoveDirection::Down);
-                },
+                }
                 Key::Char(' ') | Key::Char('x') | Key::Up => {
                     board.rotate(true);
-                },
+                }
                 Key::Char('\n') => {
                     board.hard_drop();
 
                     // we should check whether we can delete rows
                     // after hard drop, too
                     check_rows(&mut terminal, &mut board)?;
-                },
+                }
                 Key::Esc => board.toggle_pause(),
                 Key::Char('z') => {
                     board.rotate(false);
-                },
+                }
                 _ => {
                     // nothing to do here
-                },
+                }
             },
             Event::Tick => {
                 // if tetronimo fell to the end
@@ -68,14 +68,17 @@ pub fn run(f: flags::Flags) -> Result<(), Box<dyn Error>> {
                     check_rows(&mut terminal, &mut board)?;
                 }
                 // process tick here
-            },
+            }
         }
     }
 
     Ok(())
 }
 
-fn check_rows<B: Backend>(terminal: &mut Terminal<B>, board: &mut Board) -> Result<(), Box<dyn Error>> {
+fn check_rows<B: Backend>(
+    terminal: &mut Terminal<B>,
+    board: &mut Board,
+) -> Result<(), Box<dyn Error>> {
     let mut amount_deleted = 0;
     loop {
         let delete_row = match board.can_delete() {
