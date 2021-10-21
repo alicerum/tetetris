@@ -1,6 +1,6 @@
+use rand::{thread_rng, Rng};
 use std::collections::HashMap;
 use tui::style::Color;
-use rand::{thread_rng, Rng};
 
 mod tables;
 
@@ -40,8 +40,8 @@ impl TetronimoBag {
         let index = thread_rng().gen_range(0..self.size);
         let result = self.types[index as usize];
         // move it all around
-        for i in index..self.size-1 {
-            self.types[i as usize] = self.types[(i+1) as usize];
+        for i in index..self.size - 1 {
+            self.types[i as usize] = self.types[(i + 1) as usize];
         }
         self.size -= 1;
         if self.size == 0 {
@@ -52,7 +52,15 @@ impl TetronimoBag {
     }
 
     fn fill_bag() -> [Type; 7] {
-        [Type::I, Type::L, Type::T, Type::S, Type::O, Type::J, Type::Z]
+        [
+            Type::I,
+            Type::L,
+            Type::T,
+            Type::S,
+            Type::O,
+            Type::J,
+            Type::Z,
+        ]
     }
 }
 
@@ -66,7 +74,7 @@ pub struct Tetronimo {
 }
 
 impl Tetronimo {
-    pub fn new (t: Type) -> Tetronimo {
+    pub fn new(t: Type) -> Tetronimo {
         Tetronimo {
             pixels: tables::fill_new_pixels(t),
             dropped: 0,
@@ -97,10 +105,7 @@ impl Tetronimo {
     pub fn move_offset(&mut self, offset: (i8, i8), board: &HashMap<(i8, i8), Color>) -> bool {
         for p in &mut self.pixels {
             let (new_x, new_y) = (p.x + offset.0, p.y + offset.1);
-            if new_y == 20 ||
-                new_x == 10 || new_x == -1 ||
-                board.get(&(new_x, new_y)).is_some() {
-
+            if new_y == 20 || new_x == 10 || new_x == -1 || board.get(&(new_x, new_y)).is_some() {
                 return false;
             }
         }
@@ -129,9 +134,13 @@ impl Tetronimo {
             }
         }
 
-        self.rotation += if clockwise {1} else {-1};
-        if self.rotation == -1 {self.rotation = 3}
-        if self.rotation == 4 {self.rotation = 0}
+        self.rotation += if clockwise { 1 } else { -1 };
+        if self.rotation == -1 {
+            self.rotation = 3
+        }
+        if self.rotation == 4 {
+            self.rotation = 0
+        }
     }
 
     pub fn rotate_and_kick(&mut self, clockwise: bool, board: &HashMap<(i8, i8), Color>) {
@@ -145,11 +154,9 @@ impl Tetronimo {
                 let new_x = p.x + o.0;
                 let new_y = p.y - o.1;
 
-                if new_x < 0 || new_x > 9 || new_y > 19 ||
-                    board.get(&(new_x, new_y)).is_some() {
-
-                        collides = true;
-                        break;
+                if new_x < 0 || new_x > 9 || new_y > 19 || board.get(&(new_x, new_y)).is_some() {
+                    collides = true;
+                    break;
                 }
             }
 

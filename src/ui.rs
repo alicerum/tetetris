@@ -1,10 +1,10 @@
 use crate::game::Board;
 use tui::backend::Backend;
-use tui::Frame;
+use tui::layout::{Constraint, Direction, Layout};
+use tui::style::{Color, Modifier, Style};
 use tui::text::Span;
-use tui::style::{Style, Color, Modifier};
-use tui::layout::{Layout, Direction, Constraint};
 use tui::widgets::{Block, Borders};
+use tui::Frame;
 
 const HELP_LEN: usize = 7;
 const HELP_LINES: [&str; HELP_LEN] = [
@@ -23,22 +23,17 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
     let mut cell_height = 2;
     let mut cell_width = 4;
 
-    if cell_height * 20 + 2 > term_rect.height ||
-       cell_width * 10 + 2 > term_rect.width {
-
+    if cell_height * 20 + 2 > term_rect.height || cell_width * 10 + 2 > term_rect.width {
         cell_height = 1;
         cell_width = 2;
     }
 
-    if cell_height * 20 + 2 > term_rect.height ||
-       cell_width * 10 + 2 > term_rect.width {
-
+    if cell_height * 20 + 2 > term_rect.height || cell_width * 10 + 2 > term_rect.width {
         // terminal is still too small, please resize
-        let b = Block::default()
-            .title(Span::styled(
-                    "Terminal is too small, please resize!",
-                    Style::default().fg(Color::Red).add_modifier(Modifier::BOLD),
-                    ));
+        let b = Block::default().title(Span::styled(
+            "Terminal is too small, please resize!",
+            Style::default().fg(Color::Red).add_modifier(Modifier::BOLD),
+        ));
 
         f.render_widget(b, term_rect);
 
@@ -72,10 +67,10 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
     let left_pad = houter[0];
     let right_pad = houter[2];
 
-    let block = Block::default()
-        .borders(Borders::ALL)
-        .title(Span::styled(" TeTetris ",
-                Style::default().fg(Color::Red).add_modifier(Modifier::BOLD)));
+    let block = Block::default().borders(Borders::ALL).title(Span::styled(
+        " TeTetris ",
+        Style::default().fg(Color::Red).add_modifier(Modifier::BOLD),
+    ));
     f.render_widget(block, houter[1]);
 
     let mut vcs = Vec::new();
@@ -108,10 +103,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
     }
 
     if left_pad.width > 0 {
-        let constraints = [
-            Constraint::Length(HELP_LEN as u16),
-            Constraint::Min(0),
-        ];
+        let constraints = [Constraint::Length(HELP_LEN as u16), Constraint::Min(0)];
 
         let help_block = Layout::default()
             .constraints(constraints)
@@ -131,8 +123,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
                 .constraints([Constraint::Min(0), Constraint::Length(msg_len as u16)])
                 .split(lines[i])[1];
 
-            let b = Block::default()
-                .title(HELP_LINES[i]);
+            let b = Block::default().title(HELP_LINES[i]);
             f.render_widget(b, msg_rect);
         }
     }
@@ -148,18 +139,18 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
             ])
             .split(right_pad);
 
-        let score_block = Block::default()
-            .title(Span::styled(
-                    format!("Score: {}", game_board.score()),
-                    Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)));
+        let score_block = Block::default().title(Span::styled(
+            format!("Score: {}", game_board.score()),
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
+        ));
         f.render_widget(score_block, right_info[0]);
 
         if let Some(ps) = game_board.upcoming_pixels() {
             let upcoming_rect = Layout::default()
                 .direction(Direction::Horizontal)
-                .constraints([
-                    Constraint::Length(8),
-                ])
+                .constraints([Constraint::Length(8)])
                 .split(right_info[1])[0];
             let cols = vec![Constraint::Length(2); 5];
             let rows = vec![Constraint::Length(1); 4];
@@ -231,11 +222,10 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
             .style(Style::default().bg(Color::Black));
         f.render_widget(b, hmsg);
 
-        let title_widget = Block::default()
-            .title(Span::styled(msg,
-                    Style::default()
-                        .fg(msg_color)
-                        .add_modifier(Modifier::BOLD)));
+        let title_widget = Block::default().title(Span::styled(
+            msg,
+            Style::default().fg(msg_color).add_modifier(Modifier::BOLD),
+        ));
 
         let msg = Layout::default()
             .direction(Direction::Vertical)
@@ -249,6 +239,5 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, game_board: &Board) {
             .split(hmsg)[1];
 
         f.render_widget(title_widget, msg);
-
     }
 }

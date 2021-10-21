@@ -1,6 +1,6 @@
-use std::fmt;
-use std::error::Error;
 use clap::{crate_version, App, Arg};
+use std::error::Error;
+use std::fmt;
 
 pub struct Flags {
     pub tick: u32,
@@ -13,7 +13,9 @@ pub struct ParseError {
 
 impl ParseError {
     pub fn new(msg: &str) -> ParseError {
-        ParseError { details: String::from(msg) }
+        ParseError {
+            details: String::from(msg),
+        }
     }
 }
 
@@ -28,16 +30,22 @@ impl Error for ParseError {}
 pub fn config_flags() -> Result<Flags, ParseError> {
     let matches = App::new("tetetris")
         .version(crate_version!())
-        .arg(Arg::with_name("tick")
-            .short("t")
-            .long("tick")
-            .help("Tetris tick rate in miliseconds. Default is '300'.")
-            .takes_value(true))
+        .arg(
+            Arg::with_name("tick")
+                .short("t")
+                .long("tick")
+                .help("Tetris tick rate in miliseconds. Default is '300'.")
+                .takes_value(true),
+        )
         .get_matches();
 
     let tick = matches.value_of("tick").unwrap_or("300");
     let tick = match tick.parse() {
-        Err(_) => return Err(ParseError::new("Wrong value for 'tick-rate' flag. Must be integer.")),
+        Err(_) => {
+            return Err(ParseError::new(
+                "Wrong value for 'tick-rate' flag. Must be integer.",
+            ))
+        }
         Ok(v) => v,
     };
 

@@ -8,7 +8,7 @@ fn main() {
         Err(e) => {
             eprintln!("{}", e);
             process::exit(1);
-        },
+        }
     };
 
     if let Err(e) = tetetris::run(f) {
